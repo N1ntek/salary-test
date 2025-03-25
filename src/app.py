@@ -7,10 +7,14 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse
 
 from src.api import router as api_router
+from src.core.database import db
+from src.core.init_db import init_db
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
+    async with db.session_factory() as session:
+        await init_db(session)
     yield
 
 
@@ -23,7 +27,7 @@ app = FastAPI(
 # noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://dev.llhost.eu"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
