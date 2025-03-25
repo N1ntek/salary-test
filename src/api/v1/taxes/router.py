@@ -2,7 +2,12 @@ from fastapi import APIRouter, HTTPException, status
 
 from src.api.v1.taxes import crud
 from src.api.v1.taxes.dependencies import TaxByIdDep
-from src.api.v1.taxes.schemas import TaxRateCreate, TaxRateUpdate, TaxRateResponse
+from src.api.v1.taxes.schemas import (
+    TaxRateCreate,
+    TaxRateUpdate,
+    TaxRateResponse,
+    TaxRateType,
+)
 from src.core.database import DbSessionDep
 
 router = APIRouter(prefix="/taxes", tags=["taxes"])
@@ -37,13 +42,14 @@ async def create_tax_rate(
 @router.get("/", response_model=list[TaxRateResponse])
 async def get_tax_rates(
     session: DbSessionDep,
+    tax_type: TaxRateType | None = None,
 ):
     """
     Get all tax rates.
     
     Returns a list of tax rates.
     """
-    return await crud.get_tax_rates(session)
+    return await crud.get_tax_rates(session, tax_type)
 
 
 @router.get("/{tax_rate_id}", response_model=TaxRateResponse)
