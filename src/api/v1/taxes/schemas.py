@@ -11,13 +11,16 @@ class TaxRateType(StrEnum):
 
 class TaxRateCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    code: TaxRateType
+    type: TaxRateType
+    code: str = Field(..., min_length=1, max_length=100)
     rate: float = Field(..., gt=0, lt=1)
     description: str | None = Field(None, max_length=255)
 
 
 class TaxRateUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100)
+    type: TaxRateType | None = None
+    code: str | None = Field(None, min_length=1, max_length=100)
     rate: float | None = Field(None, gt=0, lt=1)
     description: str | None = Field(None, max_length=255)
 
@@ -27,7 +30,8 @@ class TaxRateResponse(BaseModel):
 
     id: int
     name: str = Field(..., min_length=1, max_length=100)
-    code: TaxRateType
+    type: TaxRateType
+    code: str = Field(..., min_length=1, max_length=100)
     rate: float = Field(..., gt=0, lt=1)
     description: str | None = Field(None, max_length=255)
     created_at: datetime

@@ -1,8 +1,7 @@
-from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.v1.taxes.schemas import TaxRateCreate, TaxRateUpdate
+from src.api.v1.taxes.schemas import TaxRateCreate, TaxRateUpdate, TaxRateType
 from src.core.models.tax_rate import TaxRate
 
 
@@ -24,17 +23,21 @@ async def create_tax_rate(session: AsyncSession, tax_rate: TaxRateCreate) -> Tax
     return db_tax_rate
 
 
-async def get_tax_rates(session: AsyncSession) -> List[TaxRate]:
+async def get_tax_rates(session: AsyncSession, tax_type: TaxRateType | None) -> list[TaxRate]:
     """
     Get all tax rates.
     
     Args:
         session: Database session
+        tax_type: Tax rate type
         
     Returns:
-        List of tax rates
+        list of tax rates
     """
-    result = await session.execute(select(TaxRate))
+    if tax_type is None:
+        result = await session.execute(select(TaxRate))
+    else:
+        result = await session.execute(select(TaxRate).where(TaxRate.type == tax_type))
     return list(result.scalars().all())
 
 
