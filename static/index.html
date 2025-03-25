@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Calculator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Salary Calculator</h1>
+        
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="calculator-tab" data-bs-toggle="tab" data-bs-target="#calculator" type="button" role="tab" aria-controls="calculator" aria-selected="true">Salary Calculator</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tax-rates-tab" data-bs-toggle="tab" data-bs-target="#tax-rates" type="button" role="tab" aria-controls="tax-rates" aria-selected="false">Tax Rates</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="exemptions-tab" data-bs-toggle="tab" data-bs-target="#exemptions" type="button" role="tab" aria-controls="exemptions" aria-selected="false">Exemptions</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="myTabContent">
+            <!-- Salary Calculator Tab -->
+            <div class="tab-pane fade show active" id="calculator" role="tabpanel" aria-labelledby="calculator-tab">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Input Parameters</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="salary-form">
+                                    <div class="mb-3">
+                                        <label for="gross-salary" class="form-label">Gross Salary</label>
+                                        <input type="number" class="form-control" id="gross-salary" min="0" step="0.01" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="social-rate" class="form-label">Social Fund Rate</label>
+                                        <select class="form-select" id="social-rate">
+                                            <option value="">Default</option>
+                                            <!-- Will be populated from API -->
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="custom-medical-rate" class="form-label">Custom Medical Insurance Rate (%)</label>
+                                        <input type="number" class="form-control" id="custom-medical-rate" min="0" max="100" step="0.01">
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="personal-exemption">
+                                        <label class="form-check-label" for="personal-exemption">Apply Personal Exemption</label>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="increased-personal-exemption">
+                                        <label class="form-check-label" for="increased-personal-exemption">Apply Increased Personal Exemption</label>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="spouse-exemption">
+                                        <label class="form-check-label" for="spouse-exemption">Apply Increased Spouse Exemption</label>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="dependent-count" class="form-label">Number of Dependents</label>
+                                        <input type="number" class="form-control" id="dependent-count" min="0" value="0">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="disabled-dependent-count" class="form-label">Number of Disabled Dependents</label>
+                                        <input type="number" class="form-control" id="disabled-dependent-count" min="0" value="0">
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Calculate</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Calculation Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="results" class="d-none">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <th>Gross Salary:</th>
+                                                <td id="result-gross"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Social Fund:</th>
+                                                <td id="result-social"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Medical Insurance:</th>
+                                                <td id="result-medical"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Tax Exemptions:</th>
+                                                <td id="result-exemptions"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Income Tax:</th>
+                                                <td id="result-income-tax"></td>
+                                            </tr>
+                                            <tr class="table-success">
+                                                <th>Net Salary:</th>
+                                                <td id="result-net"></td>
+                                            </tr>
+                                            <tr class="table-info">
+                                                <th>Total Salary Cost:</th>
+                                                <td id="result-total"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="no-results" class="text-center">
+                                    <p class="text-muted">Enter salary details and click Calculate to see results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tax Rates Tab -->
+            <div class="tab-pane fade" id="tax-rates" role="tabpanel" aria-labelledby="tax-rates-tab">
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Tax Rates</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="tax-rates-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Type</th>
+                                                <th>Code</th>
+                                                <th>Rate</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Will be populated from API -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exemptions Tab -->
+            <div class="tab-pane fade" id="exemptions" role="tabpanel" aria-labelledby="exemptions-tab">
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Tax Exemptions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="exemptions-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Code</th>
+                                                <th>Annual Amount</th>
+                                                <th>Monthly Amount</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Will be populated from API -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
