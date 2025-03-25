@@ -8,6 +8,7 @@ from src.core.models import TaxRate, TaxExemption
 
 logger = logging.getLogger(__name__)
 
+
 async def init_tax_rates(session: AsyncSession) -> None:
     """
     Initialize tax rates in the database if they don't exist.

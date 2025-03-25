@@ -2,9 +2,9 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from starlette import status
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import HTMLResponse
+from starlette.responses import RedirectResponse
+from starlette.staticfiles import StaticFiles
 
 from src.api import router as api_router
 from src.core.database import db
@@ -36,10 +36,10 @@ app.add_middleware(
 
 app.include_router(api_router)
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 @app.get("/", include_in_schema=False)
 def root():
-    return HTMLResponse(
-        content='Welcome to Salary API! please visit <a href="/docs">docs</a>',
-        status_code=status.HTTP_200_OK,
-    )
+    return RedirectResponse(url="/static/index.html")

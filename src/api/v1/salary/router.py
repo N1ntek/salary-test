@@ -9,17 +9,28 @@ from src.core.database import DbSessionDep
 
 router = APIRouter(prefix="/salary", tags=["salary"])
 
+
 @router.post("/calculate", response_model=SalaryCalculationResponse)
 async def calculate_salary(
     session: DbSessionDep,
     gross_salary: Annotated[float, Query(gt=0)],
     social_rate_id: int | None = None,
-    custom_medical_insurance_rate: int | None = Query(None, description="Asigurare medicală Angajat(% manual, optional):"),
+    custom_medical_insurance_rate: int | None = Query(
+        None, description="Asigurare medicală Angajat(% manual, optional):"
+    ),
     use_personal_exemption: bool = Query(False, description="Apply personal exemption"),
-    use_increased_personal_exemption: bool = Query(False, description="Apply increased personal exemption"),
-    use_increased_spouse_exemption: bool = Query(False, description="Apply increased spouse exemption"),
-    dependent_count: int = Query(0, ge=0, description="Number of dependents without disabilities"),
-    disabled_dependent_count: int = Query(0, ge=0, description="Number of dependents with disabilities"),
+    use_increased_personal_exemption: bool = Query(
+        False, description="Apply increased personal exemption"
+    ),
+    use_increased_spouse_exemption: bool = Query(
+        False, description="Apply increased spouse exemption"
+    ),
+    dependent_count: int = Query(
+        0, ge=0, description="Number of dependents without disabilities"
+    ),
+    disabled_dependent_count: int = Query(
+        0, ge=0, description="Number of dependents with disabilities"
+    ),
 ):
     """
     Calculate taxes and net salary based on gross salary.
@@ -41,19 +52,34 @@ async def calculate_salary(
     # Get social fund rate - either by ID if provided, or default
     if social_rate_id is not None:
         social_fund_rate_obj = await get_tax_rate_by_id(session, social_rate_id)
-        if social_fund_rate_obj is None or social_fund_rate_obj.type != TaxRateType.social_fund:
+        if (
+            social_fund_rate_obj is None
+            or social_fund_rate_obj.type != TaxRateType.social_fund
+        ):
             # Fallback to default if specified ID is not found or not a social fund rate
-            social_fund_rate_obj = await get_tax_rate_by_code(session, TaxRateType.social_fund)
+            social_fund_rate_obj = await get_tax_rate_by_code(
+                session, TaxRateType.social_fund
+            )
     else:
-        social_fund_rate_obj = await get_tax_rate_by_code(session, TaxRateType.social_fund)
+        social_fund_rate_obj = await get_tax_rate_by_code(
+            session, TaxRateType.social_fund
+        )
 
     # Extract rates from objects
-    social_fund_rate = social_fund_rate_obj.rate if social_fund_rate_obj is not None else 0
+    social_fund_rate = (
+        social_fund_rate_obj.rate if social_fund_rate_obj is not None else 0
+    )
 
     # Extract default rate
     if custom_medical_insurance_rate is None:
-        medical_insurance_rate_obj =  await get_tax_rate_by_code(session, TaxRateType.medical_insurance)
-        medical_insurance_rate = medical_insurance_rate_obj.rate if medical_insurance_rate_obj is not None else 0
+        medical_insurance_rate_obj = await get_tax_rate_by_code(
+            session, TaxRateType.medical_insurance
+        )
+        medical_insurance_rate = (
+            medical_insurance_rate_obj.rate
+            if medical_insurance_rate_obj is not None
+            else 0
+        )
     else:
         medical_insurance_rate = custom_medical_insurance_rate / 100
         print(medical_insurance_rate)
@@ -68,7 +94,9 @@ async def calculate_salary(
 
     # Personal exemption (only one of personal or increased personal can be applied)
     if use_increased_personal_exemption:
-        personal_exemption = await get_tax_exemption_by_code(session, "personal_increased")
+        personal_exemption = await get_tax_exemption_by_code(
+            session, "personal_increased"
+        )
         if personal_exemption:
             total_exemption_amount += personal_exemption.monthly_amount
     elif use_personal_exemption:
@@ -86,12 +114,18 @@ async def calculate_salary(
     if dependent_count > 0:
         dependent_exemption = await get_tax_exemption_by_code(session, "dependent")
         if dependent_exemption:
-            total_exemption_amount += dependent_exemption.monthly_amount * dependent_count
+            total_exemption_amount += (
+                dependent_exemption.monthly_amount * dependent_count
+            )
 
     if disabled_dependent_count > 0:
-        disabled_dependent_exemption = await get_tax_exemption_by_code(session, "dependent_disabled")
+        disabled_dependent_exemption = await get_tax_exemption_by_code(
+            session, "dependent_disabled"
+        )
         if disabled_dependent_exemption:
-            total_exemption_amount += disabled_dependent_exemption.monthly_amount * disabled_dependent_count
+            total_exemption_amount += (
+                disabled_dependent_exemption.monthly_amount * disabled_dependent_count
+            )
 
     # Taxable income after deductions and exemptions
     taxable_income = max(0.0, gross_salary - medical_insurance - total_exemption_amount)

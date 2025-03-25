@@ -20,12 +20,12 @@ async def create_tax_rate(
 ):
     """
     Create a new tax rate.
-    
+
     - **name**: Tax rate name (required)
     - **code**: Unique tax rate code (required) ("social_fund", "medical_insurance", "income_tax")
     - **rate**: Tax rate value between 0 and 1 (required)
     - **description**: Optional description
-    
+
     Returns the created tax rate.
     """
     # Check if tax rate with the same code already exists
@@ -35,7 +35,7 @@ async def create_tax_rate(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Tax rate with code '{tax_rate.code}' already exists",
         )
-    
+
     return await crud.create_tax_rate(session, tax_rate)
 
 
@@ -46,7 +46,7 @@ async def get_tax_rates(
 ):
     """
     Get all tax rates.
-    
+
     Returns a list of tax rates.
     """
     return await crud.get_tax_rates(session, tax_type)
@@ -58,9 +58,9 @@ async def get_tax_rate(
 ):
     """
     Get a tax rate by ID.
-    
+
     - **tax_rate_id**: Tax rate ID (required)
-    
+
     Returns the tax rate if found.
     """
     return tax_rate
@@ -73,9 +73,9 @@ async def get_tax_rate_by_code(
 ):
     """
     Get a tax rate by code.
-    
+
     - **code**: Tax rate code (required)
-    
+
     Returns the tax rate if found.
     """
     tax_rate = await crud.get_tax_rate_by_code(session, code)
@@ -84,7 +84,7 @@ async def get_tax_rate_by_code(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tax rate with code '{code}' not found",
         )
-    
+
     return tax_rate
 
 
@@ -96,12 +96,12 @@ async def update_tax_rate(
 ):
     """
     Update a tax rate.
-    
+
     - **tax_rate_id**: Tax rate ID (required)
     - **name**: New tax rate name (optional)
     - **rate**: New tax rate value between 0 and 1 (optional)
     - **description**: New description (optional)
-    
+
     Returns the updated tax rate if found.
     """
     updated_tax_rate = await crud.update_tax_rate(session, tax_rate, tax_rate_update)
@@ -115,9 +115,9 @@ async def delete_tax_rate(
 ):
     """
     Delete a tax rate.
-    
+
     - **tax_rate_id**: Tax rate ID (required)
-    
+
     Returns no content if successful.
     """
     await crud.delete_tax_rate(session, tax_rate)

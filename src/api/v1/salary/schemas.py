@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
+
 class SalaryCalculationResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

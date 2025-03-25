@@ -13,14 +13,14 @@ async def get_tax_exemption_by_id(
 ) -> TaxExemption:
     """
     Get a tax exemption by ID.
-    
+
     Args:
         tax_exemption_id: Tax exemption ID
         session: Database session
-        
+
     Returns:
         Tax exemption if found
-        
+
     Raises:
         HTTPException: If tax exemption not found
     """
@@ -30,7 +30,7 @@ async def get_tax_exemption_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tax exemption with ID {tax_exemption_id} not found",
         )
-    
+
     return tax_exemption
 
 
